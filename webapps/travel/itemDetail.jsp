@@ -3,12 +3,17 @@
 <%@ page import="java.util.Base64"%>
 <%@ page import="java.security.*"%>
 <%String id = request.getParameter("id");%>
-<jsp:useBean id="db" class="com.database.Database"></jsp:useBean>
+<jsp:useBean id="database" class="com.database.Database">
+  <jsp:setProperty property="ip" name="database" value="140.120.54.114"/>
+  <jsp:setProperty property="port" name="database" value="3306"/>
+  <jsp:setProperty property="db" name="database" value="7105029031"/>
+  <jsp:setProperty property="user" name="database" value="7105029031"/>
+  <jsp:setProperty property="password" name="database" value="7105029031"/>
+</jsp:useBean>
 <%
-  db.connectDB();
-  db.query("select * from attraction where id = " + id);
-  // out.println("select * from attraction where id = " + id);
-  ResultSet rs = db.getRS();
+  database.connectDB();
+  database.query("select * from attraction where id = " + id);
+  ResultSet rs = database.getRS();
 %>
 <!DOCTYPE html>
 <html>
@@ -52,8 +57,8 @@
       <div class="row">
       <div class="col s12">
         <div class="card">
-          <div class="card-image" style="max-height:100% !important;">
-            <img src="<%=photo%>" style="background-color:black;">
+          <div class="card-image" >
+            <img src="<%=photo%>" style="background-color:black;"height=500>
           </div>
           <div class="card-content">
             <h style="font-size:20px;font-weight:bold;"><%=name%></h>

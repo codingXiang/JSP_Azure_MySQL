@@ -11,17 +11,18 @@
 <%
   request.setCharacterEncoding("UTF-8");
   String name = request.getParameter("name");
+  String id = request.getParameter("id");
   String location = request.getParameter("location");
   String photo = request.getParameter("photo");
   String description = request.getParameter("description");
   String message = "";
   if (name != null && location != null && photo != null && description != null){
     database.connectDB();
-    database.insertData(name,location,description,photo);
+    database.deleteData(id);
     response.setHeader("Refresh" , "3;url=index.jsp");
-    message = "新增成功！三秒之後自動轉回首頁";
+    message = "刪除成功！三秒之後自動轉回首頁";
   }else{
-    message = "新增失敗！";
+    message = "刪除失敗！";
   }
 
 %>
@@ -117,7 +118,7 @@
                     <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
                         <ol class="breadcrumb">
                             <li><a href="#">後台管理系統</a></li>
-                            <li class="active">新增資料</li>
+                            <li class="active">刪除資料</li>
                         </ol>
                     </div>
                     <!-- /.col-lg-12 -->

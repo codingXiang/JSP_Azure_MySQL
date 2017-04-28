@@ -1,11 +1,26 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page language="java" import="java.sql.*" %>
-<jsp:useBean id="db" class="com.database.Database"></jsp:useBean>
+<jsp:useBean id="database" class="com.database.Database">
+  <jsp:setProperty property="ip" name="database" value="140.120.54.114"/>
+  <jsp:setProperty property="port" name="database" value="3306"/>
+  <jsp:setProperty property="db" name="database" value="7105029031"/>
+  <jsp:setProperty property="user" name="database" value="7105029031"/>
+  <jsp:setProperty property="password" name="database" value="7105029031"/>
+</jsp:useBean>
 <%
-  ResultSet rs = null;
-  db.connectDB();
-  db.query("select * from attraction order by id");
-  rs = db.getRS();
+  database.connectDB();
+  request.setCharacterEncoding("UTF-8");
+  String p_name = request.getParameter("name");
+  String p_id = request.getParameter("id");
+  String p_location = request.getParameter("location");
+  String p_photo = request.getParameter("photo");
+  String p_description = request.getParameter("description");
+  if (p_name != null && p_location != null && p_photo != null && p_description != null){
+    database.connectDB();
+    database.editData(p_id,p_name,p_location,p_description,p_photo);
+  }
+  database.query("select * from attraction order by id");
+  ResultSet rs = database.getRS();
 %>
 <!DOCTYPE html>
 <html lang="zh-hant">
@@ -136,18 +151,20 @@
                                             String createdAt = rs.getString("createdAt");
                                       %>
                                         <tr>
+                                          <form id = "form<%=id%>" action="edit.jsp" method="POST">
                                             <td><%=id%></td>
-                                            <td><%=name%></td>
-                                            <td><%=location%></td>
-                                            <td><%=description%></td>
-                                            <td><a href="<%=photo%>">連結</a></td>
+                                            <td id = "name<%=id%>"><%=name%></td>
+                                            <td id = "location<%=id%>"><%=location%></td>
+                                            <td id = "description<%=id%>"><%=description%></td>
+                                            <td id = "photo<%=id%>"><img id = "photoURL<%=id%>" src="<%=photo%>" width=50></td>
                                             <td><%=createdAt%></td>
                                             <td>
-                                              <button type="button" class="btn btn-primary">修改</button>
+                                              <button type = "button" id = "edit<%=id%>" type="button" class="btn btn-primary">修改</button>
                                             </td>
                                             <td>
-                                              <button type="button" class="btn btn-danger">刪除</button>
+                                              <button id = "delete<%=id%>" type="button" class="btn btn-danger">刪除</button>
                                             </td>
+                                          </form>
                                         </tr>
                                       <% }} %>
                                     </tbody>
@@ -186,9 +203,6 @@
                                   </div>
                                 </form>
                             </div>
-                            <%-- <div class="modal-footer">
-                                <input type="submit" class="btn btn-primary" value="新增景點">
-                            </div> --%>
                         </div>
                     </div>
                 </div>
@@ -212,6 +226,115 @@
     <script src="js/waves.js"></script>
     <!-- Custom Theme JavaScript -->
     <script src="js/custom.min.js"></script>
+    <script>
+    $(document).ready(function(){
+      $("button").on("click",function(){
+        switch($(this).text()){
+          case "修改":
+            var id = $(this).attr("id").split("edit")[1];
+            $("#name" + id).html('<input type="text" name="name" id = "input_name' + id + '"value="' + $("#name" + id).text() + '" />');
+            $("#location" + id).html('<input type="text" name="location" id = "input_location' + id + '"value="' + $("#location" + id).text() + '" />');
+            $("#photo" + id).html('<input type="text" name="photo" id = "input_photo' + id + '"value="' + $("#photoURL" + id).attr("src") + '" />');
+            $("#description" + id).html('<textarea name="description" id = "input_description' + id + '"value="' + $("#description" + id).text() + '" >' + $("#description" + id).text() +'</textarea>');
+            $(this).attr("id","storeEdit" + id);
+            $(this).html("儲存");
+            $("#delete" + id).html("取消")
+            $("#delete" + id).attr("id","cancel" + id)
+          break;
+          case "儲存":
+            var id = $(this).attr("id").split("storeEdit")[1];
+            var name = $("#input_name" + id).val();
+            var location = $("#input_location" + id).val();
+            var photo = $("#input_photo" + id).val();
+            var description = $("#input_description" + id).val();
+            // console.log(photo)
+            // $("#name" + id).html(name);
+            // $("#location" + id).html(location);
+            // $("#photo" + id).html('<img id = "photoURL' + id + '" src="' + photo + '" width=50">');
+            // $("#description" + id).html(description);
+            // $(this).attr("id","edit" + id);
+            // $(this).html("修改");
+            // $("#cancel" + id).attr("id","delete" + id);
+            // $("#delete" + id).html("刪除");
+            var id_input = $("<input>").attr("type", "hidden").attr("name", "id").val(id);
+            $("#form" + id).attr("action","index.jsp");
+            $("#form" + id).append(id_input);
+            $("#form" + id).append($("#input_name" + id));
+            $("#form" + id).append($("#input_location" + id));
+            $("#form" + id).append($("#input_photo" + id));
+            $("#form" + id).append($("#input_description" + id));
+            $("#form" + id).submit();
+          break;
+          case "取消":
+            var id = $(this).attr("id").split("cancel")[1];
+            $("#name" + id).html($("#input_name" + id).val());
+            $("#location" + id).html($("#input_location" + id).val());
+            $("#photo" + id).html('<a href="' + $("#input_photo" + id).val() + '">連結</a>');
+            $("#description" + id).html($("#input_description" + id).val());
+            $("#storeEdit" + id).html("修改");
+
+            $(this).attr("id","delete" + id);
+            $(this).html("刪除");
+            $("#storeEdit" + id).attr("id","edit" + id);
+          break;
+          case "刪除":
+              var id = $(this).attr("id").split("delete")[1];
+
+              var id_input = $("<input>").attr("type", "hidden").attr("name", "id").val(id);
+              var name_input = $("<input>").attr("type", "hidden").attr("name", "name").val($("#name" + id).text());
+              var id_photo = $("<input>").attr("type", "hidden").attr("name", "photo").val($("#photo" + id).text());
+              var id_description = $("<input>").attr("type", "hidden").attr("name", "description").val($("#description" + id).text());
+              var id_location = $("<input>").attr("type", "hidden").attr("name", "location").val($("#location" + id).text());
+
+              $("#form" + id).attr("action","delete.jsp");
+              $("#form" + id).append(id_input);
+              $("#form" + id).append(name_input);
+              $("#form" + id).append(id_photo);
+              $("#form" + id).append(id_description);
+              $("#form" + id).append(id_location);
+              $("#form" + id).submit();
+          break;
+          default:
+        }
+
+
+        // if ($(this).text().indexOf("修改") > -1){
+        //   var id = $(this).attr("id").split("edit")[1];
+        //   $("#name" + id).html('<input type="text" name="name" id = "input_name' + id + '"value="' + $("#name" + id).text() + '" />');
+        //   $("#location" + id).html('<input type="text" name="name" id = "input_location' + id + '"value="' + $("#location" + id).text() + '" />');
+        //   $("#photo" + id).html('<input type="text" name="name" id = "input_photo' + id + '"value="' + $("#photo" + id).text() + '" />');
+        //   $("#description" + id).html('<textarea name="name" id = "input_description' + id + '"value="' + $("#description" + id).text() + '" >' + $("#description" + id).text() +'</textarea>');
+        //   $(this).attr("id","storeEdit" + id);
+        //   $(this).html("儲存");
+        //   $("#delete" + id).html("取消")
+        //   $("#delete" + id).attr("id","cancel" + id)
+        // }else if ($(this).text().indexOf("儲存") > -1){
+        //   var id = $(this).attr("id").split("storeEdit")[1];
+        //   $("#name" + id).html($("#input_name" + id).val());
+        //   $("#location" + id).html($("#input_location" + id).val());
+        //   $("#photo" + id).html('<a href="' + $("#input_photo" + id).val() + '">連結</a>');
+        //   $("#description" + id).html($("#input_description" + id).val());
+        //   $(this).attr("id","edit" + id);
+        //   $(this).html("修改");
+        //   $(this).attr("id","storeEdit" + id);
+        //   $(this).html("儲存");
+        // }
+        // if ($(this).text().indexOf("取消") > -1){
+        //   var id = $(this).attr("id").split("cancel")[1];
+        //   $("#name" + id).html($("#input_name" + id).val());
+        //   $("#location" + id).html($("#input_location" + id).val());
+        //   $("#photo" + id).html('<a href="' + $("#input_photo" + id).val() + '">連結</a>');
+        //   $("#description" + id).html($("#input_description" + id).val());
+        //   $(this).attr("id","delete" + id);
+        //   $(this).html("刪除");
+        //   $("#storeEdit" + id).attr("id","edit" + id);
+        //   $("#edit" + id).html("修改");
+        // }else if ($(this).text().indexOf("刪除") > -1){
+        //
+        // }
+      });
+    });
+    </script>
 </body>
 
 </html>

@@ -49,9 +49,6 @@
             </div>
         </nav>
     </div>
-    <c:forEach items="${rows}" var="rs">
-        <c:out value="${row.name}" />
-    </c:forEach>
     <div class="row">
 
       <%

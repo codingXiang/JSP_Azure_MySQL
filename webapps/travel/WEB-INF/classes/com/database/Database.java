@@ -50,7 +50,8 @@ public class Database
    }
    public void deleteData(String id){
      try{
-       String sql = "delete from attraction where id = " + id;
+       System.out.println("delete id = " + id);
+       String sql = "delete from attraction where id = " + id + ";";
        int a = stmt.executeUpdate(sql);
      }catch(Exception ex){
        System.out.println(ex);
@@ -58,8 +59,13 @@ public class Database
    }
    public void editData(String id ,String name , String location , String description , String photo){
      try{
-      //  String sql = "update attraction set name = '" + name + "' , location = '" + location + "' , description = '" + description + "' , photo = '" + photo + "' where id = " + id;
-       String sql = "update attraction set name = "+ name +" ,location = "+ location +" where id = 3;";
+       String sql = "update attraction set name = '" + name + "' , location = '" + location + "' , description = '" + description + "' , photo = '" + photo + "' where id = " + id;
+       System.out.println("name = " + name);
+       System.out.println("location = " + location);
+       System.out.println("description = " + description);
+       System.out.println("photo = " + photo);
+
+      //  String sql = "update attraction set name = \"test\" ,location = \"test\" where id = 3;";
        int a = stmt.executeUpdate(sql);
      }catch(Exception ex){
        System.out.println(ex);
